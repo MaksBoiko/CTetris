@@ -11,7 +11,7 @@
 #define EMPTY 0
 #define BLOCK 1
 #define FROZEN 2
-#define FPS 20
+#define FPS 3
 #define ROTATE 'w'
 #define LEFT 'a'
 #define RIGHT 'd'
@@ -326,6 +326,7 @@ void sides_figure_movement(int game_field[HEIGHT][WIDTH], int figure_arr[4][2], 
 int keyboard_controller(int game_field[HEIGHT][WIDTH], int figure_arr[4][2])
 {
 	void sides_figure_movement(int game_field[HEIGHT][WIDTH], int figure[4][2], int side);
+	void rotate_figure(int game_field[HEIGHT][WIDTH], int figure_arr[4][2]);
 	char key = 0;
 	if (_kbhit())
 		key = _getch();
@@ -341,6 +342,7 @@ int keyboard_controller(int game_field[HEIGHT][WIDTH], int figure_arr[4][2])
 	}
 	else if (key == ROTATE)
 	{
+		rotate_figure(game_field, figure_arr);
 		return 1;
 	}
 	else if (key == FAST_FALLING)
@@ -362,9 +364,38 @@ void rotate_figure(int game_field[HEIGHT][WIDTH], int figure_arr[4][2])
 {
 	FigureRepresentations figure_reprs;
 	Figure figure;
-	
-
-	
-	
+	int x, y, px, py, new_x, new_y;
+	int possible_rotating_figure_parts_counter = 0;
+	int new_figure_arr[4][2];
+	// 90 degree angle rotation to the right side
+	for (int i = 0; i < 4; i++)
+	{
+		x = figure_arr[i][0];
+		y = figure_arr[i][1];
+		px = figure_arr[ROTATION_CENTER][0];
+		py = figure_arr[ROTATION_CENTER][1];
+		new_x = px + py - y;
+		new_y = x + py - px;
+		if (new_x > 0 && new_x <= WIDTH - 1 && new_y > 0 && new_y <= HEIGHT - 1
+			&& game_field[new_y][new_x] != FROZEN)
+		{
+			possible_rotating_figure_parts_counter++;
+			new_figure_arr[i][0] = px + py - y;
+			new_figure_arr[i][1] = x + py - px;
+		}
+		else
+		{
+			break;
+		}
+	}
+	if (possible_rotating_figure_parts_counter == 4)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			game_field[figure_arr[i][1]][figure_arr[i][0]] = EMPTY;
+			figure_arr[i][0] = new_figure_arr[i][0];
+			figure_arr[i][1] = new_figure_arr[i][1];		
+		}
+	}
 }
 
